@@ -10,6 +10,7 @@ import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
+import org.apache.uima.util.Logger;
 /*import org.cleartk.classifier.CleartkSequenceAnnotator;
 import org.cleartk.classifier.jar.DefaultSequenceDataWriterFactory;
 import org.cleartk.classifier.jar.DirectoryDataWriterFactory;
@@ -29,19 +30,19 @@ import de.tudarmstadt.ukp.dkpro.core.snowball.SnowballStemmer;
 
 public class ExecutePosTagger {
 
-	public static void writeModel(File posTagFile, String modelDirectory, String language)
+	public static void writeModel(File learnFile, String modelDirectory, String language)
 			throws ResourceInitializationException, UIMAException, IOException {
 
 		runPipeline(
 				FilesCollectionReader.getCollectionReaderWithSuffixes(
-						posTagFile.getAbsolutePath(),
-						NamedEntityConverter.NER_VIEW, posTagFile.getName()),
+						learnFile.getAbsolutePath(),
+						NamedEntityConverter.NER_VIEW, learnFile.getName()),
 				createEngine(NamedEntityConverter.class),
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
 				createEngine(
 						NamedEntityTaggerAnnotator.class,
-						CleartkSequenceAnnotator.PARAM_IS_TRAINING,true,
+						CleartkSequenceAnnotator.PARAM_IS_TRAINING, true,
 						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY, modelDirectory,
 						DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
 						CrfSuiteStringOutcomeDataWriter.class));
@@ -52,17 +53,17 @@ public class ExecutePosTagger {
 	    org.cleartk.ml.jar.Train.main(modelDirectory);
 	}
 
-	public static void classifyTestFile(String modelDirectory, File testPosFile, String language) throws ResourceInitializationException, UIMAException, IOException {
+	public static void classifyTestFile(String modelDirectory, File testFile, String language) throws ResourceInitializationException, UIMAException, IOException {
 		runPipeline(FilesCollectionReader.getCollectionReaderWithSuffixes(
-				testPosFile.getAbsolutePath(),
-				NamedEntityConverter.NER_VIEW, testPosFile.getName()),
+				testFile.getAbsolutePath(),
+				NamedEntityConverter.NER_VIEW, testFile.getName()),
 				createEngine(NamedEntityConverter.class),
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
 						createEngine(NamedEntityTaggerAnnotator.class,
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH, 	modelDirectory+"model.jar"),
 				createEngine(AnalyzeFeatures.class,
-						AnalyzeFeatures.PARAM_INPUT_FILE, testPosFile.getAbsolutePath(),
+						AnalyzeFeatures.PARAM_INPUT_FILE, testFile.getAbsolutePath(),
 						AnalyzeFeatures.PARAM_TOKEN_VALUE_PATH,"pos/PosValue")
 			);
 	}
