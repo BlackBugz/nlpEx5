@@ -1,0 +1,19 @@
+<list>
+  <CleartkExtractor>
+    <annotationClass>de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token</annotationClass>
+    <extractor class="CoveredTextExtractor"/>
+    <contexts>
+      <Preceding>
+        <begin>0</begin>
+        <end>2</end>
+        <name>Preceding_0_2</name>
+      </Preceding>
+      <Following>
+        <begin>0</begin>
+        <end>2</end>
+        <name>Following_0_2</name>
+      </Following>
+    </contexts>
+  </CleartkExtractor>
+</list>
+
