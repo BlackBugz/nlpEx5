@@ -46,6 +46,7 @@ import de.tudarmstadt.lt.teaching.nlp4web.ml.xml.XStreamFactory;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.teaching.general.type.NamedEntity;
 
 public class NamedEntityTaggerAnnotator
     extends CleartkSequenceAnnotator<String>
@@ -119,11 +120,17 @@ public class NamedEntityTaggerAnnotator
             }
             else {
                 List<String> posTags = this.classify(instances);
+                List<String> neTags = this.classify(instances);
                 int i = 0;
                 for (Token token : tokens) {
                     POS pos = new POS(jCas, token.getBegin(), token.getEnd());
-                    pos.setPosValue(posTags.get(i++));
+                    pos.setPosValue(posTags.get(i));
                     token.setPos(pos);
+                    
+                    NamedEntity ne = new NamedEntity(jCas, token.getBegin(), token.getEnd());
+                    ne.setEntityType(neTags.get(i));
+                    
+                    i++;
                 }
             }
         }
