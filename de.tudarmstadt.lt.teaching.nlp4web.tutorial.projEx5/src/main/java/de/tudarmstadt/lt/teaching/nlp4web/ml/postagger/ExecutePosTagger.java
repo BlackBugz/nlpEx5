@@ -67,18 +67,33 @@ public class ExecutePosTagger {
 			);
 	}
 
+	private static void info(String message) {
+		Logger logger = UIMAFramework.getLogger();
+		logger.log(Level.INFO, message);
+	}
 	public static void main(String[] args) throws Exception {
 
+		
 		long start = System.currentTimeMillis();
+		info("Started");
+
 		String modelDirectory = "src/test/resources/model/";
 		String language = "en";
-		File posTagFile=   new File("src/main/resources/ner/ner_eng.train");
-		File testPosFile = new File("src/main/resources/ner/ner_eng.dev");
+		// simple short training set:
+		File nerTagFile=   new File("src/main/resources/ner/ner_eng_10.train");
+		File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
+
+		// full training set:
+//				File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
+//		File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
 		new File(modelDirectory).mkdirs();
-		writeModel(posTagFile, modelDirectory,language);
+		info("~~~~~ Starting to write model ~~~~~");
+		writeModel(nerTagFile, modelDirectory,language);
+		info("~~~~~ Starting to train model ~~~~~");
 		trainModel(modelDirectory);
-		classifyTestFile(modelDirectory, testPosFile,language);
+		info("~~~~~ Starting to test model ~~~~~");
+		classifyTestFile(modelDirectory, nerTestFile ,language);
 		long now = System.currentTimeMillis();
-		UIMAFramework.getLogger().log(Level.INFO,"Time: "+(now-start)+"ms");
+		info("Time: "+(now-start)+"ms");
 	}
 }
