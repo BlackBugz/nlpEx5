@@ -24,7 +24,6 @@ import org.cleartk.ml.mallet.MalletCrfStringOutcomeDataWriter;
 import org.cleartk.util.cr.FilesCollectionReader;
 
 import de.tudarmstadt.lt.teaching.nlp4web.ml.entitytagger.NamedEntityTaggerAnnotator;
-import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.ConllAnnotator;
 import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.NamedEntityConverter;
 import de.tudarmstadt.ukp.dkpro.core.snowball.SnowballStemmer;
 
@@ -81,8 +80,8 @@ public class ExecutePosTagger {
 		String modelDirectory = "src/test/resources/model/";
 		String language = "en";
 		// simple short training set:
-		File nerTagFile=   new File("src/main/resources/ner/ner_eng_10.train");
-		File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
+		File nerTagFile=   new File("src/main/resources/ner/ner_eng_mini.train");
+		File nerTestFile = new File("src/main/resources/ner/ner_eng_mini.dev");
 
 		// full training set:
 //				File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
