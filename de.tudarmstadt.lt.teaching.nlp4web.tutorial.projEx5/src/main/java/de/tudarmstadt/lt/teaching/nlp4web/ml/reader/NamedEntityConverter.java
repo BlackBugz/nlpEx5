@@ -105,7 +105,7 @@ public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 				token.addToIndexes();
 				neTag.addToIndexes();
 				logger.log(
-						Level.INFO,
+						Level.FINE,
 						"Token: ["
 								+ docText.substring(token.getBegin(), token.getEnd()) 
 								+ "] \t"
