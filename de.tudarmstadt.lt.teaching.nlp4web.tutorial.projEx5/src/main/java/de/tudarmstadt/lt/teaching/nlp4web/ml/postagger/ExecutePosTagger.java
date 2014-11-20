@@ -64,6 +64,7 @@ public class ExecutePosTagger {
 				createEngine(AnalyzeFeatures.class,
 						AnalyzeFeatures.PARAM_INPUT_FILE, testFile.getAbsolutePath(),
 						AnalyzeFeatures.PARAM_TOKEN_VALUE_PATH,"pos/PosValue")
+//						AnalyzeFeatures.PARAM_TOKEN_VALUE_PATH,"pos/PosValue")
 			);
 	}
 
@@ -84,7 +85,7 @@ public class ExecutePosTagger {
 		File nerTestFile = new File("src/main/resources/ner/ner_eng_mini.dev");
 
 		// full training set:
-//				File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
+//		File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
 //		File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
 		new File(modelDirectory).mkdirs();
 		info("~~~~~ Starting to write model ~~~~~");

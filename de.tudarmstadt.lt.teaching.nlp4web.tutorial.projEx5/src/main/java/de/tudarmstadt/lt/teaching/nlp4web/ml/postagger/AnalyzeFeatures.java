@@ -62,19 +62,27 @@ public class AnalyzeFeatures extends JCasAnnotator_ImplBase
 			TypePathExtractor<Token> extractor;
 			extractor = new TypePathExtractor<Token>(Token.class, tokenValuePath);
 			String line;
-			String[] splitLine;
-			BufferedReader reader = new BufferedReader(
-					new FileReader(inputFile));
+			String[] splitLine = null;
+			BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 			int correct = 0;
 			int tokenCount = 0;
 
 			for (Sentence sentence : select(jCas, Sentence.class)) {
-				line = reader.readLine();
+//				line = reader.readLine();
 				List<Token> tokens = selectCovered(jCas, Token.class, sentence);
 				for (Token token : tokens) {
-					line = reader.readLine();
-					splitLine = line.split("\\s");
-					String trueValue = splitLine[1];
+					boolean searchForward = true;
+					while(searchForward) {
+						line = reader.readLine(); 
+						splitLine = line.split("\\s");
+						if(splitLine.length == 4) 
+						{
+							searchForward=false;
+						}
+					}
+//					line = reader.readLine();
+					
+					String trueValue = splitLine[3];
 					String classifiedValue = extractor.extract(jCas, token).get(0).getValue().toString();
 
 					if (splitLine[0].equals(token.getCoveredText())) {

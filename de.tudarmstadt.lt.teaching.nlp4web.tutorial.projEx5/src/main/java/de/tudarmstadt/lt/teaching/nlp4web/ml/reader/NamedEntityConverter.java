@@ -36,7 +36,6 @@ public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 		} catch (CASException e) {
 			throw new AnalysisEngineProcessException(e);
 		}
-		// TODO Make sure its -DOCSTART- -X- O O
 		
 		
 		// a new sentence always starts with a new line

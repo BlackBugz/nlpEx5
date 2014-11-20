@@ -7,11 +7,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.uima.UIMAFramework;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.Level;
+import org.apache.uima.util.Logger;
 /*import org.cleartk.classifier.CleartkSequenceAnnotator;
  import org.cleartk.classifier.Instance;
  import org.cleartk.classifier.feature.extractor.CleartkExtractor;
@@ -48,55 +52,55 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.teaching.general.type.NamedEntity;
 
-public class NamedEntityTaggerAnnotator
-    extends CleartkSequenceAnnotator<String>
-{
+public class NamedEntityTaggerAnnotator extends CleartkSequenceAnnotator<String> {
 
-    public static final String PARAM_FEATURE_EXTRACTION_FILE = "FeatureExtractionFile";
+	public static final String PARAM_FEATURE_EXTRACTION_FILE = "FeatureExtractionFile";
 
-    /**
-     * if a feature extraction/context extractor filename is given the xml file is parsed and the
-     * features are used, otherwise it will not be used
-     */
-    @ConfigurationParameter(name = PARAM_FEATURE_EXTRACTION_FILE, mandatory = false)
-    private String featureExtractionFile = null;
+	/**
+	 * if a feature extraction/context extractor filename is given the xml file
+	 * is parsed and the features are used, otherwise it will not be used
+	 */
+	@ConfigurationParameter(name = PARAM_FEATURE_EXTRACTION_FILE, mandatory = false)
+	private String featureExtractionFile = null;
 
-    private FeatureExtractor1<Token> tokenFeatureExtractor;
+	private FeatureExtractor1<Token> tokenFeatureExtractor;
 
-    private CleartkExtractor<Token, Token> contextFeatureExtractor;
-    private TypePathExtractor<Token> stemExtractor;
+	private CleartkExtractor<Token, Token> contextFeatureExtractor;
+	private TypePathExtractor<Token> stemExtractor;
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void initialize(UimaContext context)
-        throws ResourceInitializationException
-    {
-        super.initialize(context);
-        // add feature extractors
-        if (featureExtractionFile == null) {
-            CharacterNgramFeatureFunction.Orientation fromRight = Orientation.RIGHT_TO_LEFT;
+	private Logger logger;
 
-            stemExtractor = new TypePathExtractor<Token>(Token.class, "stem/value");
+	@SuppressWarnings("unchecked")
+	@Override
+	public void initialize(UimaContext context) throws ResourceInitializationException {
+		super.initialize(context);
+		logger = context.getLogger();
+		// add feature extractors
+		if (featureExtractionFile == null) {
+			CharacterNgramFeatureFunction.Orientation fromRight = Orientation.RIGHT_TO_LEFT;
 
-            this.tokenFeatureExtractor = new FeatureFunctionExtractor<Token>(
-                    new CoveredTextExtractor<Token>(), new LowerCaseFeatureFunction(),
-                    new CapitalTypeFeatureFunction(), new NumericTypeFeatureFunction(),
-                    new CharacterNgramFeatureFunction(fromRight, 0, 2));
+			stemExtractor = new TypePathExtractor<Token>(Token.class, "stem/value");
 
-            this.contextFeatureExtractor = new CleartkExtractor<Token, Token>(Token.class,
-                    new CoveredTextExtractor<Token>(), new Preceding(2), new Following(2));
+			this.tokenFeatureExtractor = new FeatureFunctionExtractor<Token>(new CoveredTextExtractor<Token>(),
+					new LowerCaseFeatureFunction(), new CapitalTypeFeatureFunction(), new NumericTypeFeatureFunction(),
+					new CharacterNgramFeatureFunction(fromRight, 0, 2));
 
-        }
-        else {// load the settings from a file
-              // initialize the XStream if a xml file is given:
-            XStream xstream = XStreamFactory.createXStream();
-            tokenFeatureExtractor = (FeatureExtractor1<Token>) xstream.fromXML(new File(
-                    featureExtractionFile));
-        }
+			this.contextFeatureExtractor = new CleartkExtractor<Token, Token>(Token.class, new CoveredTextExtractor<Token>(),
+					new Preceding(2), new Following(2));
 
-    }
+		} else {// load the settings from a file
+				// initialize the XStream if a xml file is given:
+			XStream xstream = XStreamFactory.createXStream();
+			tokenFeatureExtractor = (FeatureExtractor1<Token>) xstream.fromXML(new File(featureExtractionFile));
+		}
 
-    @Override
+	}
+
+	private void info(String message) {
+		logger.log(Level.INFO, message);
+	}
+
+	@Override
     public void process(JCas jCas)
         throws AnalysisEngineProcessException
     {
@@ -104,14 +108,22 @@ public class NamedEntityTaggerAnnotator
             List<Instance<String>> instances = new ArrayList<Instance<String>>();
             List<Token> tokens = selectCovered(jCas, Token.class, sentence);
             for (Token token : tokens) {
+            	
+            	Instance<String> instance = new Instance<String>();
+            	instance.addAll(tokenFeatureExtractor.extract(jCas, token));
+            	instance.addAll(contextFeatureExtractor.extractWithin(jCas, token, sentence));
+            	instance.addAll(stemExtractor.extract(jCas, token));
 
-                Instance<String> instance = new Instance<String>();
-                instance.addAll(tokenFeatureExtractor.extract(jCas, token));
-                instance.addAll(contextFeatureExtractor.extractWithin(jCas, token, sentence));
-                instance.addAll(stemExtractor.extract(jCas, token));
 
-                instance.setOutcome(token.getPos().getPosValue());
-                // add the instance to the list !!!
+            	List<NamedEntity> entityAnnotations = selectCovered(jCas, NamedEntity.class, token);
+//            	info(String.format("covered %s annotations", entityAnnotations.size() ) );
+//            	int i=0;
+            	for(NamedEntity ne: entityAnnotations) {
+//            		info(ne.getCoveredText());
+            		instance.setOutcome(ne.getEntityType());
+            	}
+
+            	// add the instance to the list !!!
                 instances.add(instance);
             }
             // differentiate between training and classifying
@@ -136,5 +148,4 @@ public class NamedEntityTaggerAnnotator
         }
 
     }
-
 }
