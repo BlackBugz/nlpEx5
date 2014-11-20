@@ -33,3 +33,4 @@ local.properties
 .classpath
 /target/
 metadata/
+src/test/resources/model/
