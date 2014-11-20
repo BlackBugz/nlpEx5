@@ -22,6 +22,7 @@ import org.cleartk.ml.jar.GenericJarClassifierFactory;
 import org.cleartk.ml.mallet.MalletCrfStringOutcomeDataWriter;
 import org.cleartk.util.cr.FilesCollectionReader;
 
+import de.tudarmstadt.lt.teaching.nlp4web.ml.entitytagger.NamedEntityTaggerAnnotator;
 import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.ConllAnnotator;
 import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.NamedEntityConverter;
 import de.tudarmstadt.ukp.dkpro.core.snowball.SnowballStemmer;
@@ -39,7 +40,7 @@ public class ExecutePosTagger {
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
 				createEngine(
-						PosTaggerAnnotator.class,
+						NamedEntityTaggerAnnotator.class,
 						CleartkSequenceAnnotator.PARAM_IS_TRAINING,true,
 						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY, modelDirectory,
 						DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -49,17 +50,16 @@ public class ExecutePosTagger {
 
 	public static void trainModel(String modelDirectory) throws Exception {
 	    org.cleartk.ml.jar.Train.main(modelDirectory);
-
 	}
 
 	public static void classifyTestFile(String modelDirectory, File testPosFile, String language) throws ResourceInitializationException, UIMAException, IOException {
 		runPipeline(FilesCollectionReader.getCollectionReaderWithSuffixes(
 				testPosFile.getAbsolutePath(),
-				ConllAnnotator.CONLL_VIEW, testPosFile.getName()),
-				createEngine(ConllAnnotator.class),
+				NamedEntityConverter.NER_VIEW, testPosFile.getName()),
+				createEngine(NamedEntityConverter.class),
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
-						createEngine(PosTaggerAnnotator.class,
+						createEngine(NamedEntityTaggerAnnotator.class,
 				GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH, 	modelDirectory+"model.jar"),
 				createEngine(AnalyzeFeatures.class,
 						AnalyzeFeatures.PARAM_INPUT_FILE, testPosFile.getAbsolutePath(),

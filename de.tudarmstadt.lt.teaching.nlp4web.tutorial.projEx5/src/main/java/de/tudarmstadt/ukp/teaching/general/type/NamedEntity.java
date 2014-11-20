@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Thu Nov 20 18:28:56 CET 2014
- * XML source: C:/Users/hatieke/repos/nlp4webEx5/nlpEx5/de.tudarmstadt.lt.teaching.nlp4web.tutorial.projEx5/src/main/resources/desc/type/NamedEntity.xml
+ * Updated by JCasGen Thu Nov 20 18:53:23 CET 2014
+ * XML source: C:/Users/Hendrik/Documents/repos/nlpEx5/de.tudarmstadt.lt.teaching.nlp4web.tutorial.projEx5/src/main/resources/desc/type/NamedEntity.xml
  * @generated */
 public class NamedEntity extends Annotation {
   /** @generated
