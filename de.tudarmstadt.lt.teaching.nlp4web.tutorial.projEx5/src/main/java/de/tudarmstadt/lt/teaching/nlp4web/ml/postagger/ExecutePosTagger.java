@@ -72,8 +72,8 @@ public class ExecutePosTagger {
 		long start = System.currentTimeMillis();
 		String modelDirectory = "src/test/resources/model/";
 		String language = "en";
-		File posTagFile=   new File("src/main/resources/pos/ner_eng.train");
-		File testPosFile = new File("src/main/resources/pos/ner_eng.dev");
+		File posTagFile=   new File("src/main/resources/ner/ner_eng.train");
+		File testPosFile = new File("src/main/resources/ner/ner_eng.dev");
 		new File(modelDirectory).mkdirs();
 		writeModel(posTagFile, modelDirectory,language);
 		trainModel(modelDirectory);
