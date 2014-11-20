@@ -107,11 +107,12 @@ public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 				logger.log(
 						Level.FINE,
 						"Token: ["
-								+ docText.substring(token.getBegin(),
-										token.getEnd()) + "]"
+								+ docText.substring(token.getBegin(), token.getEnd()) 
+								+ "] \t"
 								+ token.getBegin() + "\t" 
 								+ token.getEnd() +"\t"
-								+ neTag.getEntityType());
+								+ neTag.getEntityType()
+							);
 
 			}
 		}

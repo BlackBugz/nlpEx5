@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Thu Nov 20 15:32:31 CET 2014 */
+/* First created by JCasGen Thu Nov 20 17:07:53 CET 2014 */
 package de.tudarmstadt.ukp.teaching.general.type;
 
 import org.apache.uima.jcas.JCas;
@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Thu Nov 20 15:32:31 CET 2014
+ * Updated by JCasGen Thu Nov 20 17:07:53 CET 2014
  * @generated */
 public class NamedEntity_Type extends Annotation_Type {
   /** @generated 

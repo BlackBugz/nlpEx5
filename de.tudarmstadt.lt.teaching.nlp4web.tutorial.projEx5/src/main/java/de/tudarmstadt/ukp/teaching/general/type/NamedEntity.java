@@ -1,6 +1,6 @@
 
 
-/* First created by JCasGen Thu Nov 20 15:32:31 CET 2014 */
+/* First created by JCasGen Thu Nov 20 17:07:53 CET 2014 */
 package de.tudarmstadt.ukp.teaching.general.type;
 
 import org.apache.uima.jcas.JCas; 
@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Thu Nov 20 15:32:31 CET 2014
- * XML source: /home/marco/Documenti/TUDa/NLP/Es5/nlpEx5/de.tudarmstadt.lt.teaching.nlp4web.tutorial.projEx5/src/main/resources/desc/type/NamedEntity.xml
+ * Updated by JCasGen Thu Nov 20 17:07:53 CET 2014
+ * XML source: C:/Users/hatieke/repos/nlp4webEx5/nlpEx5/de.tudarmstadt.lt.teaching.nlp4web.tutorial.projEx5/src/main/resources/desc/type/MHNamedEntity.xml
  * @generated */
 public class NamedEntity extends Annotation {
   /** @generated
