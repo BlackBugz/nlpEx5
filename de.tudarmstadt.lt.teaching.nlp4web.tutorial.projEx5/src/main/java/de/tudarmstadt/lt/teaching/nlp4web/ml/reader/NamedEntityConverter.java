@@ -13,6 +13,7 @@ import org.apache.uima.util.Logger;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.teaching.general.type.NamedEntity;
 
 public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 	public static final String NER_VIEW = "NERView";
@@ -48,6 +49,7 @@ public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 		int idx = 0;
 		Token token = null;
 		POS posTag;
+		NamedEntity neTag;
 		String pos;
 		boolean initSentence = false;
 		StringBuffer docText = new StringBuffer();
@@ -68,12 +70,14 @@ public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 				String chunk = tag[2];
 				String ne= tag[3];
 				
+				
 				docText.append(word);
 				if (!word.matches("^(\\p{Punct}).*")) {
 					token = new Token(docView, idx, idx + word.length());
 					posTag = new POS(docView, idx, idx + word.length());
+					neTag = new NamedEntity(docView, idx, idx + word.length());
+					neTag.setEntityType(ne);
 					
-
 					docText.append(" ");
 					idx++;
 				} else {
@@ -84,6 +88,8 @@ public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 					}
 					token = new Token(docView, idx, idx + word.length());
 					posTag = new POS(docView, idx, idx + word.length());
+					neTag = new NamedEntity(docView, idx, idx + word.length());
+					neTag.setEntityType(ne);
 				}
 				//start new sentence
 				if (initSentence) {
@@ -97,12 +103,15 @@ public class NamedEntityConverter extends JCasAnnotator_ImplBase {
 				posTag.setPosValue(pos);
 				token.setPos(posTag);
 				token.addToIndexes();
+				neTag.addToIndexes();
 				logger.log(
 						Level.FINE,
 						"Token: ["
 								+ docText.substring(token.getBegin(),
 										token.getEnd()) + "]"
-								+ token.getBegin() + "\t" + token.getEnd());
+								+ token.getBegin() + "\t" 
+								+ token.getEnd() +"\t"
+								+ neTag.getEntityType());
 
 			}
 		}

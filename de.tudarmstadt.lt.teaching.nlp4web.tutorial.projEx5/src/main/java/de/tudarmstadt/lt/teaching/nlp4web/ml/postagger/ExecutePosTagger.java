@@ -23,6 +23,7 @@ import org.cleartk.ml.mallet.MalletCrfStringOutcomeDataWriter;
 import org.cleartk.util.cr.FilesCollectionReader;
 
 import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.ConllAnnotator;
+import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.NamedEntityConverter;
 import de.tudarmstadt.ukp.dkpro.core.snowball.SnowballStemmer;
 
 public class ExecutePosTagger {
@@ -33,8 +34,8 @@ public class ExecutePosTagger {
 		runPipeline(
 				FilesCollectionReader.getCollectionReaderWithSuffixes(
 						posTagFile.getAbsolutePath(),
-						ConllAnnotator.CONLL_VIEW, posTagFile.getName()),
-				createEngine(ConllAnnotator.class),
+						NamedEntityConverter.NER_VIEW, posTagFile.getName()),
+				createEngine(NamedEntityConverter.class),
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
 				createEngine(
