@@ -81,12 +81,12 @@ public class ExecutePosTagger {
 		String modelDirectory = "src/test/resources/model/";
 		String language = "en";
 		// simple short training set:
-		File nerTagFile=   new File("src/main/resources/ner/ner_eng_mini.train");
-		File nerTestFile = new File("src/main/resources/ner/ner_eng_mini.dev");
+//		File nerTagFile=   new File("src/main/resources/ner/ner_eng_mini.train");
+//		File nerTestFile = new File("src/main/resources/ner/ner_eng_mini.dev");
 
 		// full training set:
-//		File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
-//		File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
+		File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
+		File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
 		new File(modelDirectory).mkdirs();
 		info("~~~~~ Starting to write model ~~~~~");
 		writeModel(nerTagFile, modelDirectory,language);
