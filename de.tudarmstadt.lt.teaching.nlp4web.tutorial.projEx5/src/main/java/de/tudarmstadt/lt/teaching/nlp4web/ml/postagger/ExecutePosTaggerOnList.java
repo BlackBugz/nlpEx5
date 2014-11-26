@@ -74,6 +74,8 @@ public class ExecutePosTaggerOnList {
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
 				createEngine(NamedEntityTaggerAnnotator.class,
+						NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
+						featureFile,
 						GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 						modelDirectory + "model.jar"),
 				createEngine(AnalyzeFeatures.class,

@@ -65,10 +65,12 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.teaching.general.type.NamedEntity;
 
-public class NamedEntityTaggerAnnotator extends
+public class NamedEntityTaggerAnnotator2 extends
 		CleartkSequenceAnnotator<String> {
 
 	public static final String PARAM_FEATURE_EXTRACTION_FILE = "FeatureExtractionFile";
+	public static final String PARAM_ENTITY_LIST_FILE = "EntityListFile";
+	
 
 	/**
 	 * if a feature extraction/context extractor filename is given the xml file
@@ -76,6 +78,9 @@ public class NamedEntityTaggerAnnotator extends
 	 */
 	@ConfigurationParameter(name = PARAM_FEATURE_EXTRACTION_FILE, mandatory = false)
 	private String featureExtractionFile = null;
+	
+	@ConfigurationParameter(name = PARAM_ENTITY_LIST_FILE, mandatory = false)
+	private String listFile = null;
 
 	private FeatureExtractor1<Token> tokenFeatureExtractor;
 
@@ -160,10 +165,6 @@ public class NamedEntityTaggerAnnotator extends
 
 	private void info(String message) {
 		logger.log(Level.INFO, message);
-	}
-	
-	public void trainWithList(){
-		
 	}
 
 	@Override

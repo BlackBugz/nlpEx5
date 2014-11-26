@@ -4,8 +4,10 @@ import static org.apache.uima.fit.util.JCasUtil.select;
 import static org.apache.uima.fit.util.JCasUtil.selectCovered;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +33,11 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
  *
  *
  */
-public class AnalyzeFeatures extends JCasAnnotator_ImplBase
+public class FeaturesWriter extends JCasAnnotator_ImplBase
 {
 	public static final String PARAM_TOKEN_VALUE_PATH = "TokenValuePath";
 	public static final String PARAM_INPUT_FILE = "InputFile";
+	public static final String PARAM_OUTPUT_FILE = "OnputFile";
 	/**
 	 * To make this class general, the path to the feature that is used
 	 * for the evaluation the tokenValuePath has to be set to the feature
@@ -45,7 +48,9 @@ public class AnalyzeFeatures extends JCasAnnotator_ImplBase
 	private String tokenValuePath;
 	@ConfigurationParameter(name = PARAM_INPUT_FILE, mandatory = true)
 	private String inputFile;
-	Logger logger = UIMAFramework.getLogger(AnalyzeFeatures.class);
+	@ConfigurationParameter(name = PARAM_OUTPUT_FILE, mandatory = true)
+	private String outputFile;
+	Logger logger = UIMAFramework.getLogger(FeaturesWriter.class);
 
 	private class Classification {
 		int fp = 0;
@@ -64,8 +69,7 @@ public class AnalyzeFeatures extends JCasAnnotator_ImplBase
 			String line;
 			String[] splitLine = null;
 			BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-			int correct = 0;
-			int tokenCount = 0;
+			BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
 
 			for (Sentence sentence : select(jCas, Sentence.class)) {
 //				line = reader.readLine();
@@ -79,71 +83,15 @@ public class AnalyzeFeatures extends JCasAnnotator_ImplBase
 						{
 							searchForward=false;
 						}
+						writer.write(line);
 					}
-//					line = reader.readLine();
-					
-					String trueValue = splitLine[3];
 					String classifiedValue = extractor.extract(jCas, token).get(0).getValue().toString();
-					System.out.println(trueValue + " = " + classifiedValue);
-					if (splitLine[0].equals(token.getCoveredText())) {
-						if (trueValue.equals(classifiedValue)) {
-							correct++;
-
-							if (!map.containsKey(trueValue)) {
-								map.put(trueValue, new Classification());
-							}
-							map.get(trueValue).tp++;
-						} else {
-							if (!map.containsKey(trueValue)) {
-								map.put(trueValue, new Classification());
-							}
-							if (!map.containsKey(classifiedValue)) {
-								map.put(classifiedValue, new Classification());
-							}
-							map.get(trueValue).fn++;
-							map.get(classifiedValue).fp++;
-						}
-						tokenCount++;
-					} else {
-						logger.log(
-								Level.WARNING,
-								"Token of predicting file does not match to text ("
-										+ splitLine[0] + "!="
-										+ token.getCoveredText() + ")");
-					}
-
+					writer.write(" "+classifiedValue + "\n");
 				}
 			}
 			reader.close();
-			double precisionSum = 0.0;
-			double recallSum = 0.0;
-			double fmeasureSum = 0.0;
-			logger.log(Level.INFO, "Pos-Tag\tprecision\trecall\tF-measure");
-			for (Entry<String, Classification> e : map.entrySet()) {
-				double precision = 0.0;
-				double recall = 0.0;
-				double fmeasure = 0.0;
-				double tp = e.getValue().tp;
-				double fp = e.getValue().fp;
-				double fn = e.getValue().fn;
-				if (e.getValue().tp > 0.0) {
-					precision = 1.0 * tp / (tp + fp);
-					recall = 1.0 * tp / (tp + fn);
-					fmeasure = 2.0 * precision * recall / (precision + recall);
-					recallSum += recall;
-					precisionSum += precision;
-					fmeasureSum += fmeasure;
-				}
-
-				logger.log(Level.INFO, e.getKey() + "\t" + precision + "\t"
-						+ recall + "\t" + fmeasure);
-			}
-			logger.log(Level.INFO, "Accuracy: \t"
-					+ (1.0 * correct / tokenCount));
-			logger.log(Level.INFO, "Precision:\t" + (precisionSum / map.size()));
-			logger.log(Level.INFO, "Recall:   \t" + (recallSum / map.size()));
-			logger.log(Level.INFO, "F-Measure:\t" + (fmeasureSum / map.size()));
-
+			writer.close();
+			logger.log(Level.INFO, "Finished writing");
 		} catch (FileNotFoundException e) {
 			logger.log(Level.WARNING, e.getMessage());
 		} catch (IOException e) {
