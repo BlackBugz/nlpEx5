@@ -29,7 +29,7 @@ import de.tudarmstadt.ukp.dkpro.core.snowball.SnowballStemmer;
 
 public class ExecutePosTagger {
 
-	public static void writeModel(File learnFile, String modelDirectory, String language)
+	public static void writeModel(File learnFile, String modelDirectory, String language, File additionalNerFile)
 			throws ResourceInitializationException, UIMAException, IOException {
 
 		runPipeline(
@@ -41,6 +41,7 @@ public class ExecutePosTagger {
 						SnowballStemmer.PARAM_LANGUAGE, language),
 				createEngine(
 						NamedEntityTaggerAnnotator.class,
+						NamedEntityTaggerAnnotator.PARAM_NER_LIST_FILE, additionalNerFile.getAbsolutePath(), 
 						CleartkSequenceAnnotator.PARAM_IS_TRAINING, true,
 						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY, modelDirectory,
 						DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -80,16 +81,24 @@ public class ExecutePosTagger {
 
 		String modelDirectory = "src/test/resources/model/";
 		String language = "en";
-		// simple short training set:
-//		File nerTagFile=   new File("src/main/resources/ner/ner_eng_mini.train");
-//		File nerTestFile = new File("src/main/resources/ner/ner_eng_mini.dev");
 
-		// full training set:
-		File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
-		File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
-		new File(modelDirectory).mkdirs();
+		// micro set for developing		
+//				File nerTagFile=   new File("src/main/resources/ner/ner_eng_micro.train");
+//				File nerTestFile = new File("src/main/resources/ner/ner_eng_micro.dev");
+//				File addonNerTags = new File("src/main/resources/ner/eng_micro.list");
+
+				// simple short training set:
+//				File nerTagFile=   new File("src/main/resources/ner/ner_eng_mini.train");
+//				File nerTestFile = new File("src/main/resources/ner/ner_eng_mini.dev");
+
+				// full training set:
+				File nerTagFile=   new File("src/main/resources/ner/ner_eng.train");
+				File nerTestFile = new File("src/main/resources/ner/ner_eng.dev");
+				File addonNerTags = new File("src/main/resources/ner/eng.list");
+
+				new File(modelDirectory).mkdirs();
 		info("~~~~~ Starting to write model ~~~~~");
-		writeModel(nerTagFile, modelDirectory,language);
+		writeModel(nerTagFile, modelDirectory,language, addonNerTags);
 		info("~~~~~ Starting to train model ~~~~~");
 		trainModel(modelDirectory);
 		info("~~~~~ Starting to test model ~~~~~");
