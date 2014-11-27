@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
+import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
 import org.apache.uima.util.Logger;
@@ -28,10 +29,8 @@ import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.NamedEntityConverter;
 import de.tudarmstadt.lt.teaching.nlp4web.ml.reader.NamedEntityListReader;
 import de.tudarmstadt.ukp.dkpro.core.snowball.SnowballStemmer;
 
-
-
 public class ExecutePosTaggerOnList {
-	
+
 	static String featureFile = "/home/marco/Documenti/TUDa/NLP/Es5/nlpEx5/de.tudarmstadt.lt.teaching.nlp4web.tutorial.projEx5/features.xml";
 
 	public static void writeModel(File learnFile, String modelDirectory,
@@ -41,22 +40,51 @@ public class ExecutePosTaggerOnList {
 		runPipeline(
 				FilesCollectionReader.getCollectionReaderWithSuffixes(
 						learnFile.getAbsolutePath(),
-						NamedEntityListReader.NEL_VIEW, 
-						learnFile.getName()),
-				createEngine(NamedEntityListReader.class),
+						NamedEntityConverter.NER_VIEW, learnFile.getName()),
+				createEngine(NamedEntityConverter.class),
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
 				createEngine(
 						NamedEntityTaggerAnnotator.class,
+						//NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
+						//featureFile,
 						CleartkSequenceAnnotator.PARAM_IS_TRAINING,
 						true,
-						NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
-						featureFile,
 						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
 						modelDirectory,
 						DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
 						CrfSuiteStringOutcomeDataWriter.class));
 
+	}
+
+	public static void writeModel2(File learnFile, File listFileList[],
+			String modelDirectory, String language)
+			throws ResourceInitializationException, UIMAException, IOException {
+
+		AnalysisEngine model = createEngine(NamedEntityTaggerAnnotator.class,
+				//NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
+				//featureFile, CleartkSequenceAnnotator.PARAM_IS_TRAINING, true,
+				DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
+				modelDirectory,
+				DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
+				CrfSuiteStringOutcomeDataWriter.class);
+		
+		runPipeline(
+				FilesCollectionReader.getCollectionReaderWithSuffixes(
+						learnFile.getAbsolutePath(),
+						NamedEntityConverter.NER_VIEW, learnFile.getName()),
+				createEngine(NamedEntityConverter.class),
+				createEngine(SnowballStemmer.class,
+						SnowballStemmer.PARAM_LANGUAGE, language), model);
+		for(File listFile : listFileList){
+			runPipeline(
+					FilesCollectionReader.getCollectionReaderWithSuffixes(
+							listFile.getAbsolutePath(),
+							NamedEntityListReader.NEL_VIEW, listFile.getName()),
+					createEngine(NamedEntityListReader.class),
+					createEngine(SnowballStemmer.class,
+							SnowballStemmer.PARAM_LANGUAGE, language), model);
+		}
 	}
 
 	public static void trainModel(String modelDirectory) throws Exception {
@@ -73,15 +101,18 @@ public class ExecutePosTaggerOnList {
 				createEngine(NamedEntityConverter.class),
 				createEngine(SnowballStemmer.class,
 						SnowballStemmer.PARAM_LANGUAGE, language),
-				createEngine(NamedEntityTaggerAnnotator.class,
-						NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
-						featureFile,
+				createEngine(
+						NamedEntityTaggerAnnotator.class,
+						//NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
+						//featureFile,
 						GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 						modelDirectory + "model.jar"),
-				createEngine(AnalyzeFeatures.class,
-						AnalyzeFeatures.PARAM_INPUT_FILE,
+				createEngine(FeaturesWriter.class,
+						FeaturesWriter.PARAM_INPUT_FILE,
 						testFile.getAbsolutePath(),
-						AnalyzeFeatures.PARAM_TOKEN_VALUE_PATH, "pos/PosValue")
+						FeaturesWriter.PARAM_TOKEN_VALUE_PATH, "pos/PosValue",
+						FeaturesWriter.PARAM_OUTPUT_FILE,
+						testFile.getAbsolutePath() + ".out")
 		// AnalyzeFeatures.PARAM_TOKEN_VALUE_PATH,"pos/PosValue")
 		);
 	}
@@ -105,11 +136,20 @@ public class ExecutePosTaggerOnList {
 		// File("src/main/resources/ner/ner_eng_mini.dev");
 
 		// full training set:
-		File nelTagFile = new File("src/main/resources/ner/eng.list");
+		File nerTagFile = new File("src/main/resources/ner/ner_eng.train");
+		File nelTagFile[] = {
+				new File("src/main/resources/ner/eng.list"),
+				new File("src/main/resources/ner/cities.list"),
+				new File("src/main/resources/ner/entities.list")
+		};
+		
 		File nelTestFile = new File("src/main/resources/ner/ner_eng.dev");
 		new File(modelDirectory).mkdirs();
+		info("Starting executing ExecutePosTaggerOnList");
 		info("~~~~~ Starting to write model ~~~~~");
-		writeModel(nelTagFile, modelDirectory, language);
+		writeModel2(nerTagFile, nelTagFile, modelDirectory, language);
+		//info("~~~~~ Starting to write model for list ~~~~~");
+		//writeModelForList(nelTagFile, modelDirectory, language);
 		info("~~~~~ Starting to train model ~~~~~");
 		trainModel(modelDirectory);
 		info("~~~~~ Starting to test model ~~~~~");

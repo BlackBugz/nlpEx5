@@ -107,23 +107,23 @@ public class NamedEntityTaggerAnnotator2 extends
 
 			this.tokenFeatureExtractor = new FeatureFunctionExtractor<Token>(
 					new CoveredTextExtractor<Token>(),
-			        new CharacterCategoryPatternFunction<Token>(PatternType.REPEATS_MERGED),
+					/* new CharacterCategoryPatternFunction<Token>(PatternType.REPEATS_MERGED),
 			        new CapitalTypeFeatureFunction()
 //			        ,
 			        //new TypePathExtractor<Annotation>(focusClass, typePath)
-					/*
+					*/
 					new LowerCaseFeatureFunction(),
 					new CapitalTypeFeatureFunction(),
-					new NumericTypeFeatureFunction(),*/
-					//new CharacterNgramFeatureFunction(fromRight, 0, 2),
+					new NumericTypeFeatureFunction(),
+					new CharacterNgramFeatureFunction(fromRight, 0, 2)
 					//, new ContainsHyphenFeatureFunction()
 					);
 			
 
 			this.contextFeatureExtractor = new CleartkExtractor<Token, Token>(
 					Token.class, 
-					this.tokenFeatureExtractor,
-					//new CoveredTextExtractor<Token>(),
+					//this.tokenFeatureExtractor,
+					new CoveredTextExtractor<Token>(),
 					new Preceding(3), 
 					new Following(3)
 					//, new Bag(new Preceding(2), new Focus(), new Following(2))
@@ -170,6 +170,7 @@ public class NamedEntityTaggerAnnotator2 extends
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
 		for (Sentence sentence : select(jCas, Sentence.class)) {
+			
 			List<Instance<String>> instances = new ArrayList<Instance<String>>();
 			List<Token> tokens = selectCovered(jCas, Token.class, sentence);
 			for (Token token : tokens) {

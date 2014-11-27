@@ -102,8 +102,11 @@ public class NamedEntityTaggerAnnotator extends
 
 			this.tokenFeatureExtractor = new FeatureFunctionExtractor<Token>(
 					new CoveredTextExtractor<Token>(),
-			        new CharacterCategoryPatternFunction<Token>(PatternType.REPEATS_MERGED),
-			        new CapitalTypeFeatureFunction()
+			        new CharacterCategoryPatternFunction<Token>(PatternType.REPEATS_AS_KLEENE_PLUS),
+			        //new CapitalTypeFeatureFunction(),
+			        new ContainsHyphenFeatureFunction(),
+			        new NumericTypeFeatureFunction(),
+			        new CharacterNgramFeatureFunction(fromRight, 0, 2)
 //			        ,
 			        //new TypePathExtractor<Annotation>(focusClass, typePath)
 					/*
@@ -117,28 +120,30 @@ public class NamedEntityTaggerAnnotator extends
 
 			this.contextFeatureExtractor = new CleartkExtractor<Token, Token>(
 					Token.class, 
-					this.tokenFeatureExtractor,
-					//new CoveredTextExtractor<Token>(),
-					new Preceding(3), 
-					new Following(3)
-					//, new Bag(new Preceding(2), new Focus(), new Following(2))
+					//this.tokenFeatureExtractor,
+					new CoveredTextExtractor<Token>(),
+					new Preceding(2), 
+					new Following(2)
+					, new Bag(new Preceding(2), new Focus(), new Following(2))
 					);
 			
 			extractor.put("tokenFeatureExtractor", tokenFeatureExtractor);
 			extractor.put("contextFeatureExtractor", contextFeatureExtractor);
 			
-			
-			XStream xstream = XStreamFactory.createXStream();
-			try {
-				File out = new File(featureExtractionFile);
-				out.createNewFile();
-				xstream.toXML(extractor, new FileOutputStream(out));
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(featureExtractionFile != null)
+			{
+				XStream xstream = XStreamFactory.createXStream();
+				try {
+					File out = new File(featureExtractionFile);
+					out.createNewFile();
+					xstream.toXML(extractor, new FileOutputStream(out));
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
 			
@@ -168,12 +173,14 @@ public class NamedEntityTaggerAnnotator extends
 
 	@Override
 	public void process(JCas jCas) throws AnalysisEngineProcessException {
+		int t = 0;
+		Instance<String> instance =null;
 		for (Sentence sentence : select(jCas, Sentence.class)) {
 			List<Instance<String>> instances = new ArrayList<Instance<String>>();
 			List<Token> tokens = selectCovered(jCas, Token.class, sentence);
 			for (Token token : tokens) {
 
-				Instance<String> instance = new Instance<String>();
+				instance = new Instance<String>();
 				instance.addAll(tokenFeatureExtractor.extract(jCas, token));
 				instance.addAll(contextFeatureExtractor.extractWithin(jCas,
 						token, sentence));
@@ -191,6 +198,7 @@ public class NamedEntityTaggerAnnotator extends
 
 				// add the instance to the list !!!
 				instances.add(instance);
+				t++;
 			}
 			// differentiate between training and classifying
 			if (this.isTraining()) {
@@ -211,6 +219,10 @@ public class NamedEntityTaggerAnnotator extends
 					i++;
 				}
 			}
+		}
+		if(this.isTraining()){
+			System.out.println("Last instance: "+instance.toString());
+			System.out.println("Training with "+t+" instances");
 		}
 
 	}

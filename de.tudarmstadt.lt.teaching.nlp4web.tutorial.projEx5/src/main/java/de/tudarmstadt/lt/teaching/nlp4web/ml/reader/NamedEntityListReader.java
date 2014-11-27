@@ -50,8 +50,7 @@ public class NamedEntityListReader extends JCasAnnotator_ImplBase {
 		Token token = null;
 		POS posTag;
 		NamedEntity neTag;
-		String pos;
-		boolean initSentence = false;
+
 		StringBuffer docText = new StringBuffer();
 		for (String line : lines) {
 			// new sentence if there's a new line
@@ -60,7 +59,7 @@ public class NamedEntityListReader extends JCasAnnotator_ImplBase {
 				String[] tokens = line.split(" ");
 				String neType = "I-"+tokens[0];
 
-				logger.log(Level.INFO, line);
+				//logger.log(Level.INFO, line);
 				sentence = new Sentence(docView);
 				sentence.setBegin(idx);
 				
@@ -77,7 +76,7 @@ public class NamedEntityListReader extends JCasAnnotator_ImplBase {
 					token.addToIndexes();
 					posTag.addToIndexes();
 					neTag.addToIndexes();
-					logger.log(Level.INFO, "["+idx+"-"+tl+"]: "+tokens[i]+" - {"+docText.substring(idx, tl)+"} f("+docText.substring(idx, idx+1)+")");
+					//logger.log(Level.INFO, "["+idx+"-"+tl+"]: "+tokens[i]+" - {"+docText.substring(idx, tl)+"} f("+docText.substring(idx, idx+1)+")");
 					// +1 to add the space or the newline
 					idx = tl+1;
 					String endt = i < (tokens.length - 1) ? " " : "\n";
@@ -86,7 +85,7 @@ public class NamedEntityListReader extends JCasAnnotator_ImplBase {
 				sentence.setEnd(idx-1);
 				sentence.addToIndexes();
 				
-				logger.log(Level.INFO, "SENTENCE > ["+sentence.getBegin()+"-"+sentence.getEnd()+"]: "+docText.substring(sentence.getBegin(), sentence.getEnd()));
+				//logger.log(Level.INFO, "SENTENCE > ["+sentence.getBegin()+"-"+sentence.getEnd()+"]: "+docText.substring(sentence.getBegin(), sentence.getEnd()));
 				
 				/*
 				logger.log(
