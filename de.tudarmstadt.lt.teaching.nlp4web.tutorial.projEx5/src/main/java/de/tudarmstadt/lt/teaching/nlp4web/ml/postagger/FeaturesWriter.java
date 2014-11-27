@@ -72,7 +72,6 @@ public class FeaturesWriter extends JCasAnnotator_ImplBase
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
 
 			for (Sentence sentence : select(jCas, Sentence.class)) {
-//				line = reader.readLine();
 				List<Token> tokens = selectCovered(jCas, Token.class, sentence);
 				for (Token token : tokens) {
 					boolean searchForward = true;

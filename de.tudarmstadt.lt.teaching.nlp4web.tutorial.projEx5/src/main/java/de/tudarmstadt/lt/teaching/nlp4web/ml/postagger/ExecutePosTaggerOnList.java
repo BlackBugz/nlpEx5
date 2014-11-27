@@ -31,39 +31,16 @@ import de.tudarmstadt.ukp.dkpro.core.snowball.SnowballStemmer;
 
 public class ExecutePosTaggerOnList {
 
-	static String featureFile = "/home/marco/Documenti/TUDa/NLP/Es5/nlpEx5/de.tudarmstadt.lt.teaching.nlp4web.tutorial.projEx5/features.xml";
+	static String featureFile = "src/main/resources/ner/features.xml";
 
-	public static void writeModel(File learnFile, String modelDirectory,
-			String language) throws ResourceInitializationException,
-			UIMAException, IOException {
-
-		runPipeline(
-				FilesCollectionReader.getCollectionReaderWithSuffixes(
-						learnFile.getAbsolutePath(),
-						NamedEntityConverter.NER_VIEW, learnFile.getName()),
-				createEngine(NamedEntityConverter.class),
-				createEngine(SnowballStemmer.class,
-						SnowballStemmer.PARAM_LANGUAGE, language),
-				createEngine(
-						NamedEntityTaggerAnnotator.class,
-						//NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
-						//featureFile,
-						CleartkSequenceAnnotator.PARAM_IS_TRAINING,
-						true,
-						DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
-						modelDirectory,
-						DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
-						CrfSuiteStringOutcomeDataWriter.class));
-
-	}
-
-	public static void writeModel2(File learnFile, File listFileList[],
+	public static void writeModel(File learnFile, File listFileList[],
 			String modelDirectory, String language)
 			throws ResourceInitializationException, UIMAException, IOException {
 
 		AnalysisEngine model = createEngine(NamedEntityTaggerAnnotator.class,
-				//NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
-				//featureFile, CleartkSequenceAnnotator.PARAM_IS_TRAINING, true,
+				NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
+				featureFile, 
+				CleartkSequenceAnnotator.PARAM_IS_TRAINING, true,
 				DirectoryDataWriterFactory.PARAM_OUTPUT_DIRECTORY,
 				modelDirectory,
 				DefaultSequenceDataWriterFactory.PARAM_DATA_WRITER_CLASS_NAME,
@@ -94,6 +71,7 @@ public class ExecutePosTaggerOnList {
 	public static void classifyTestFile(String modelDirectory, File testFile,
 			String language) throws ResourceInitializationException,
 			UIMAException, IOException {
+		System.out.println("Classifing "+testFile.getAbsolutePath());
 		runPipeline(
 				FilesCollectionReader.getCollectionReaderWithSuffixes(
 						testFile.getAbsolutePath(),
@@ -103,8 +81,8 @@ public class ExecutePosTaggerOnList {
 						SnowballStemmer.PARAM_LANGUAGE, language),
 				createEngine(
 						NamedEntityTaggerAnnotator.class,
-						//NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
-						//featureFile,
+						NamedEntityTaggerAnnotator.PARAM_FEATURE_EXTRACTION_FILE,
+						featureFile,
 						GenericJarClassifierFactory.PARAM_CLASSIFIER_JAR_PATH,
 						modelDirectory + "model.jar"),
 				createEngine(FeaturesWriter.class,
@@ -113,7 +91,6 @@ public class ExecutePosTaggerOnList {
 						FeaturesWriter.PARAM_TOKEN_VALUE_PATH, "pos/PosValue",
 						FeaturesWriter.PARAM_OUTPUT_FILE,
 						testFile.getAbsolutePath() + ".out")
-		// AnalyzeFeatures.PARAM_TOKEN_VALUE_PATH,"pos/PosValue")
 		);
 	}
 
@@ -129,11 +106,6 @@ public class ExecutePosTaggerOnList {
 
 		String modelDirectory = "src/test/resources/model/";
 		String language = "en";
-		// simple short training set:
-		// File nerTagFile= new
-		// File("src/main/resources/ner/ner_eng_mini.train");
-		// File nerTestFile = new
-		// File("src/main/resources/ner/ner_eng_mini.dev");
 
 		// full training set:
 		File nerTagFile = new File("src/main/resources/ner/ner_eng.train");
@@ -143,13 +115,11 @@ public class ExecutePosTaggerOnList {
 				new File("src/main/resources/ner/entities.list")
 		};
 		
-		File nelTestFile = new File("src/main/resources/ner/ner_eng.dev");
+		File nelTestFile = new File("src/main/resources/ner/ner_eng.test");
 		new File(modelDirectory).mkdirs();
 		info("Starting executing ExecutePosTaggerOnList");
 		info("~~~~~ Starting to write model ~~~~~");
-		writeModel2(nerTagFile, nelTagFile, modelDirectory, language);
-		//info("~~~~~ Starting to write model for list ~~~~~");
-		//writeModelForList(nelTagFile, modelDirectory, language);
+		writeModel(nerTagFile, nelTagFile, modelDirectory, language);
 		info("~~~~~ Starting to train model ~~~~~");
 		trainModel(modelDirectory);
 		info("~~~~~ Starting to test model ~~~~~");

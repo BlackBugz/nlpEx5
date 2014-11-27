@@ -103,24 +103,13 @@ public class NamedEntityTaggerAnnotator extends
 			this.tokenFeatureExtractor = new FeatureFunctionExtractor<Token>(
 					new CoveredTextExtractor<Token>(),
 			        new CharacterCategoryPatternFunction<Token>(PatternType.REPEATS_AS_KLEENE_PLUS),
-			        //new CapitalTypeFeatureFunction(),
 			        new ContainsHyphenFeatureFunction(),
-			        new NumericTypeFeatureFunction(),
-			        new CharacterNgramFeatureFunction(fromRight, 0, 2)
-//			        ,
-			        //new TypePathExtractor<Annotation>(focusClass, typePath)
-					/*
-					new LowerCaseFeatureFunction(),
-					new CapitalTypeFeatureFunction(),
-					new NumericTypeFeatureFunction(),*/
-					//new CharacterNgramFeatureFunction(fromRight, 0, 2),
-					//, new ContainsHyphenFeatureFunction()
+			        new NumericTypeFeatureFunction()
 					);
 			
 
 			this.contextFeatureExtractor = new CleartkExtractor<Token, Token>(
 					Token.class, 
-					//this.tokenFeatureExtractor,
 					new CoveredTextExtractor<Token>(),
 					new Preceding(2), 
 					new Following(2)
@@ -188,11 +177,8 @@ public class NamedEntityTaggerAnnotator extends
 
 				List<NamedEntity> entityAnnotations = selectCovered(jCas,
 						NamedEntity.class, token);
-				// info(String.format("covered %s annotations",
-				// entityAnnotations.size() ) );
-				// int i=0;
+
 				for (NamedEntity ne : entityAnnotations) {
-					// info(ne.getCoveredText());
 					instance.setOutcome(ne.getEntityType());
 				}
 
@@ -219,10 +205,6 @@ public class NamedEntityTaggerAnnotator extends
 					i++;
 				}
 			}
-		}
-		if(this.isTraining()){
-			System.out.println("Last instance: "+instance.toString());
-			System.out.println("Training with "+t+" instances");
 		}
 
 	}
